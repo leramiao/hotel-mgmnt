@@ -73,7 +73,7 @@ function HotelDetails() {
                             {rooms.map((room) => (
                                 <li key={room.roomID} style={styles.roomItem}>
                                     <div style={styles.roomInfo}>
-                                        <h4 style={styles.roomName}>Room {room.roomID}</h4>
+                                        <h4 style={styles.roomName}>{room.name}</h4>
                                         <p style={styles.roomDetails}>
                                             {room.descr} | ${room.pricePerDay} per night
                                         </p>

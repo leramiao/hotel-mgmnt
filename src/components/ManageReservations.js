@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { format } from 'date-fns'; // Import date-fns for formatting
 
 function ManageReservations() {
     const { hotelId, roomId } = useParams();
     const [reservations, setReservations] = useState([]);
     const [message, setMessage] = useState('');
+    const [guestNames, setGuestNames] = useState({});  // State to hold guest names by guestId
     const navigate = useNavigate();
 
+    // Fetch reservations for the room
     useEffect(() => {
         const fetchReservations = async () => {
             try {
@@ -18,6 +21,10 @@ function ManageReservations() {
 
                 if (response.ok) {
                     setReservations(data.reservations);
+
+                    // Fetch guest names for each reservation
+                    const guestIds = data.reservations.map(res => res.guestId);
+                    fetchGuestNames(guestIds);
                 } else {
                     setMessage(data.error || 'Error fetching reservations');
                 }
@@ -28,6 +35,39 @@ function ManageReservations() {
 
         fetchReservations();
     }, [roomId]);
+
+    // Function to fetch guest names by guestId
+    const fetchGuestNames = async (guestIds) => {
+        const guestNameMap = {};
+
+        // Fetch each guest's name
+        for (const guestId of guestIds) {
+            try {
+                const response = await fetch(`http://127.0.0.1:5000/guests/${guestId}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    guestNameMap[guestId] = data.guestName;
+                } else {
+                    guestNameMap[guestId] = 'Unknown';  // Fallback in case guest is not found
+                }
+            } catch (error) {
+                guestNameMap[guestId] = 'Error fetching name';
+            }
+        }
+
+        // Set all guest names after fetching them
+        setGuestNames(guestNameMap);
+    };
+
+    // Function to format dates
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return format(date, 'MMMM dd, yyyy'); // Format as "Month day, year" (e.g., "March 14, 2025")
+    };
 
     const handleCancelReservation = async (reservationId) => {
         if (window.confirm('Are you sure you want to cancel this reservation?')) {
@@ -67,8 +107,8 @@ function ManageReservations() {
                         <li key={reservation.resID} style={styles.reservationItem}>
                             <div style={styles.reservationInfo}>
                                 <p style={styles.reservationDetails}>
-                                    Guest: {reservation.guestName}<br />
-                                    Dates: {reservation.dateStart} - {reservation.dateEnd}<br />
+                                    Guest: {guestNames[reservation.guestId] || 'Loading...'}<br />
+                                    Dates: {formatDate(reservation.dateStart)} - {formatDate(reservation.dateEnd)}<br />
                                     Guests: {reservation.nGuests}
                                 </p>
                                 <button

@@ -374,7 +374,7 @@ def get_room(roomID):
         conn = get_db_connection_hotel()
         cursor = conn.cursor()
 
-        cursor.execute('SELECT roomID, descr, pricePerDay, nBeds FROM rooms WHERE roomID = %s', (roomID,))
+        cursor.execute('SELECT roomID, descr, pricePerDay, nBeds, name FROM rooms WHERE roomID = %s', (roomID,))
         room = cursor.fetchone()
 
         if room:
@@ -382,7 +382,8 @@ def get_room(roomID):
                 'roomID': room[0],
                 'descr': room[1],
                 'pricePerDay': room[2],
-                'nBeds': room[3]
+                'nBeds': room[3],
+                'name': room[4]
             }
             cursor.close()
             conn.close()
@@ -637,10 +638,10 @@ def get_reservations_for_room(room_id):
         for reservation in reservations:
             reservation_list.append({
                 'resID': reservation[0],
-                'guestName': reservation[1],
-                'dateStart': reservation[2],
-                'dateEnd': reservation[3],
-                'nGuests': reservation[4]
+                'guestId': reservation[1],
+                'dateStart': reservation[3],
+                'dateEnd': reservation[4],
+                'nGuests': reservation[5]
             })
 
         cursor_res.close()
@@ -716,6 +717,23 @@ def delete_reservation(res_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@app.route('/guests/<int:guest_id>', methods=['GET'])
+def get_guest_by_id(guest_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT name, last_name FROM users WHERE userid = %s', (guest_id,))
+        guest = cursor.fetchone()
+
+        if guest:
+            return jsonify({'guestName': f'{guest[0]} {guest[1]}'}), 200
+        else:
+            return jsonify({'error': 'Guest not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

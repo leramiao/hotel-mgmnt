@@ -99,7 +99,7 @@ function RoomDetails() {
         <div style={styles.container}>
             {room && hotel ? (
                 <div style={styles.detailsCard}>
-                    <h2 style={styles.roomName}>Room {room.roomID} at {hotel.name}</h2>
+                    <h2 style={styles.roomName}>Room {room.name} at {hotel.name}</h2>
                     <p style={styles.text}>Description: {room.descr}</p>
                     <p style={styles.text}>Beds: {room.nBeds}</p>
                     <p style={styles.text}>Price: ${room.pricePerDay} per night</p>
