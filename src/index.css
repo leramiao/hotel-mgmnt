@@ -1,0 +1,14 @@
+/* Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dodatkowe style globalne */
+body {
+  font-family: 'Arial', sans-serif;
+}
+
+.chart-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
